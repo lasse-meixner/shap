@@ -147,12 +147,16 @@ inline tfloat logistic_nlogloss_transform(const tfloat margin, const tfloat y) {
 inline tfloat squared_loss_transform(const tfloat margin, const tfloat y) {
     return (margin - y) * (margin - y);
 }
+inline tfloat square_transform(const tfloat margin, const tfloat y) {
+    return margin * margin;
+}
 
 namespace MODEL_TRANSFORM {
     const unsigned identity = 0;
     const unsigned logistic = 1;
     const unsigned logistic_nlogloss = 2;
     const unsigned squared_loss = 3;
+    const unsigned square = 4;
 }
 
 inline transform_f get_transform(unsigned model_transform) {
@@ -168,6 +172,10 @@ inline transform_f get_transform(unsigned model_transform) {
 
         case MODEL_TRANSFORM::squared_loss:
             transform = squared_loss_transform;
+            break;
+        
+        case MODEL_TRANSFORM::square:
+            transform = square_transform;
             break;
     }
 

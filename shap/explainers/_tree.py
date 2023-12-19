@@ -1,3 +1,5 @@
+print("imported from folder")
+
 import json
 import os
 import struct
@@ -40,6 +42,7 @@ output_transform_codes = {
     "logistic": 1,
     "logistic_nlogloss": 2,
     "squared_loss": 3,
+    "square": 4
 }
 
 feature_perturbation_codes = {
@@ -347,7 +350,7 @@ class TreeExplainer(Explainer):
 
         return X, y, X_missing, flat_output, tree_limit, check_additivity
 
-    def shap_values(self, X, y=None, tree_limit=None, approximate=False, check_additivity=True, from_call=False):
+    def shap_values(self, X, y=None, tree_limit=None, approximate=False, check_additivity=True, from_call=False, custom_transform = "square"):
         """ Estimate the SHAP values for a set of samples.
 
         Parameters
@@ -460,7 +463,7 @@ class TreeExplainer(Explainer):
         X, y, X_missing, flat_output, tree_limit, check_additivity = self._validate_inputs(
             X, y, tree_limit, check_additivity
         )
-        transform = self.model.get_transform()
+        transform = self.model.get_custom_transform(custom_transform)
 
         # run the core algorithm using the C extension
         assert_import("cext")
@@ -1288,6 +1291,9 @@ class TreeEnsemble:
             raise ValueError(emsg)
 
         return transform
+    
+    def get_custom_transform(self, transform_name = "squared_loss"):
+        return transform_name
 
     def predict(self, X, y=None, output=None, tree_limit=None):
         """ A consistent interface to make predictions from this model.
