@@ -206,8 +206,12 @@ class TreeExplainer(Explainer):
         # compute the expected value if we have a parsed tree for the cext
         if self.model.model_output == "log_loss":
             self.expected_value = self.__dynamic_expected_value
+        # elif self.model.model_output == "squared_loss":
+        #     self.expected_value = self.__dynamic_expected_value
         elif data is not None:
             try:
+                # if self.model.model_output == "squared_losss":
+                #     self.expected_value = self.model.predict(X = self.data, y = y).mean(0)
                 self.expected_value = self.model.predict(self.data).mean(0)
             except ValueError:
                 raise ExplainerError("Currently TreeExplainer can only handle models with categorical splits when " \
@@ -313,7 +317,7 @@ class TreeExplainer(Explainer):
         assert isinstance(X, np.ndarray), "Unknown instance type: " + str(type(X))
         assert len(X.shape) == 2, "Passed input data matrix X must have 1 or 2 dimensions!"
 
-        if self.model.model_output == "log_loss":
+        if self.model.model_output in ["log_loss", "squared_loss"]:
             if y is None:
                 emsg = (
                     "Both samples and labels must be provided when model_output = \"log_loss\" "
@@ -350,7 +354,7 @@ class TreeExplainer(Explainer):
 
         return X, y, X_missing, flat_output, tree_limit, check_additivity
 
-    def shap_values(self, X, y=None, tree_limit=None, approximate=False, check_additivity=True, from_call=False, custom_transform = "square"):
+    def shap_values(self, X, y=None, tree_limit=None, approximate=False, check_additivity=True, from_call=False, custom_transform = "identity"):
         """ Estimate the SHAP values for a set of samples.
 
         Parameters
@@ -463,7 +467,8 @@ class TreeExplainer(Explainer):
         X, y, X_missing, flat_output, tree_limit, check_additivity = self._validate_inputs(
             X, y, tree_limit, check_additivity
         )
-        transform = self.model.get_custom_transform(custom_transform)
+
+        transform = self.model.get_transform()
 
         # run the core algorithm using the C extension
         assert_import("cext")
@@ -1260,6 +1265,8 @@ class TreeEnsemble:
         """
         if self.model_output == "raw":
             transform = "identity"
+        elif self.model_output == "squared_loss":
+            transform = "squared_loss"
         elif self.model_output in ("probability", "probability_doubled"):
             if self.tree_output == "log_odds":
                 transform = "logistic"
@@ -1291,9 +1298,6 @@ class TreeEnsemble:
             raise ValueError(emsg)
 
         return transform
-    
-    def get_custom_transform(self, transform_name = "squared_loss"):
-        return transform_name
 
     def predict(self, X, y=None, output=None, tree_limit=None):
         """ A consistent interface to make predictions from this model.
