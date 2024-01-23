@@ -1,3 +1,5 @@
+print("init from local version!")
+
 from ._additive import AdditiveExplainer
 from ._deep import DeepExplainer
 from ._exact import ExactExplainer
