@@ -10,7 +10,7 @@ from ._utils import convert_ordering
 
 def heatmap(shap_values, instance_order=Explanation.hclust(), feature_values=Explanation.abs.mean(0),
             feature_order=None, max_display=10, cmap=colors.red_white_blue, show=True,
-            plot_width=8):
+            plot_width=8, custom_label = None):
     """Create a heatmap plot of a set of SHAP values.
 
     This plot is designed to show the population substructure of a dataset using supervised
@@ -170,7 +170,10 @@ def heatmap(shap_values, instance_order=Explanation.hclust(), feature_values=Exp
         fraction=0.01,
         pad=0.10,  # padding between the cb and the main axes
     )
-    cb.set_label(labels["VALUE"], size=12, labelpad=-10)
+    if custom_label is not None:
+        cb.set_label(custom_label, size=12, labelpad=-10)
+    else:
+        cb.set_label(labels["VALUE"], size=12, labelpad=-10)
     cb.ax.tick_params(labelsize=11, length=0)
     cb.set_alpha(1)
     cb.outline.set_visible(False)
