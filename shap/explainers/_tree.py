@@ -717,7 +717,8 @@ class TreeEnsemble:
                 "sklearn.ensemble.RandomForestRegressor",
                 "sklearn.ensemble.forest.RandomForestRegressor",
                 "econml.grf._base_grf.BaseGRF",
-                "econml.grf.classes.CausalForest" # also has "econml.grf._base_grftree.GRFTree" in its list of estimators, for which SingleTree works
+                "econml.grf.classes.CausalForest", # also has "econml.grf._base_grftree.GRFTree" in its list of estimators, for which SingleTree works
+                "econml.grf.classes.CausalIVForest" # same as above.
             ],
         ):
             assert hasattr(model, "estimators_"), "Model has no `estimators_`! Have you called `model.fit`?"
